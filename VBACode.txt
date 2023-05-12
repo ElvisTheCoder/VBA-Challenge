@@ -1,0 +1,259 @@
+VBA for Alphabet testing
+Sub VBAChallenge()
+    ' Initialize data types
+    Dim row As Integer
+    Dim i As Integer
+    Dim tickerArray() As String
+    Dim yearlyArray() As Double
+    Dim percentArray() As Double
+    Dim volumeArray() As LongLong
+    Dim tickerElement As String
+    Dim lastI As Integer
+    Dim openPrice As Double
+    Dim closePrice As Double
+    
+    ' Initial Size of the Arrays
+    ReDim tickerArray(1 To 1000)
+    ReDim yearlyArray(1 To 1000)
+    ReDim percentArray(1 To 1000)
+    ReDim volumeArray(1 To 1000)
+    
+    ' Colume Titles
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percent Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+    
+    Cells(1, 16).Value = "Ticker"
+    Cells(1, 17).Value = "Value"
+    Cells(2, 15).Value = "Greatest % Increase"
+    Cells(3, 15).Value = "Greatest % Decrease"
+    Cells(4, 15).Value = "Greatest Total Volume"
+    
+    ' initialize Variables
+    row = 2
+    tickerElement = Cells(row, 1).Value
+    i = 1
+    
+    ' First Part of the row
+    tickerArray(1) = tickerElement
+    Cells(2, 9).Value = tickerArray(1)
+    openPrice = Cells(2, 3).Value
+    ' totalVolume = 0
+    ' Part One: put each unique tickerElement in column I give dat from column A.
+    ' Example: Column I: AAB, AAF, AAR, ...
+    ' Part Two: Calculate Yearly change by subtracting opening price of the beginning of the year
+    ' and the closing price of the end of the year and put it into Column J.
+    For row = 2 To Cells(Rows.Count, 1).End(xlUp).row + 1
+        tickerElement = Cells(row, 1).Value
+        volume = volume + Cells(row, 7).Value
+        If (tickerArray(i) <> tickerElement) Then
+            ' Yearly array
+            closePrice = Cells(row - 1, 6).Value
+            yearlyArray(i) = Round(openPrice - closePrice, 2)
+            ' Percent Change
+            percentArray(i) = Round((yearlyArray(i) / openPrice) * 100, 2)
+            ' Volume Array
+            volumeArray(i) = volume
+            volume = 0
+            ' MsgBox ("Close Price: " & closePrice & ", Open Price: " & openPrice & ", YearlyChange: " & yearlyArray(i))
+            ' Opening Price for next iteration
+            openPrice = Cells(row, 3).Value
+            i = i + 1
+            ' Place values into Excel Cells
+            tickerArray(i) = tickerElement
+            Cells(i, 9).Value = tickerArray(i - 1)
+            Cells(i, 10).Value = yearlyArray(i - 1)
+            Cells(i, 11).Value = percentArray(i - 1) & "%"
+            Cells(i, 12).Value = volumeArray(i - 1)
+            ' Put ticker value into column I and
+            ' Put Yearly Change value into column J.
+        End If
+    Next row
+    
+    ' Initialize Greatest Variables
+    Incr = -10000
+    IncrTicker = "AAB"
+    Decr = 10000
+    DecrTicker = "AAB"
+    Vol = 0
+    VolTicker = "AAB"
+    
+    ' Iterate and Compare greatest Percent Increase, Greatest Percent Decrease, and Greatest Total Volume.
+    For i = 1 To 100
+        If (Incr < percentArray(i)) Then
+            Incr = percentArray(i)
+            IncrTicker = tickerArray(i)
+        End If
+        If (Decr > percentArray(i)) Then
+            Decr = percentArray(i)
+            DecrTicker = tickerArray(i)
+        End If
+        If (Vol < volumeArray(i)) Then
+            Vol = volumeArray(i)
+            VolTicker = tickerArray(i)
+        End If
+    Next i
+    
+    ' Output Tickers to Ticker Column
+    Cells(2, 16).Value = IncrTicker
+    Cells(3, 16).Value = DecrTicker
+    Cells(4, 16).Value = VolTicker
+        
+    ' Output Greatest Value to Value Column
+    Cells(2, 17).Value = Incr & "%"
+    Cells(3, 17).Value = Decr & "%"
+    Cells(4, 17).Value = Vol
+        
+End Sub
+
+VBA for Multitesting
+Sub VBAChallenge()
+    ' Initialize data types
+    Dim row As LongLong
+    Dim i As Integer
+    Dim tickerArray() As String
+    Dim yearlyArray() As Double
+    Dim percentArray() As Double
+    Dim volumeArray() As LongLong
+    Dim tickerElement As String
+    Dim lastI As Integer
+    Dim openPrice As Double
+    Dim closePrice As Double
+    
+    ' Initial Size of the Arrays
+    ReDim tickerArray(1 To 2000)
+    ReDim yearlyArray(1 To 2000)
+    ReDim percentArray(1 To 2000)
+    ReDim volumeArray(1 To 2000)
+    
+    ' Colume Titles
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percent Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+    
+    Cells(1, 16).Value = "Ticker"
+    Cells(1, 17).Value = "Value"
+    Cells(2, 15).Value = "Greatest % Increase"
+    Cells(3, 15).Value = "Greatest % Decrease"
+    Cells(4, 15).Value = "Greatest Total Volume"
+    
+    ' initialize Variables
+    row = 2
+    tickerElement = Cells(row, 1).Value
+    i = 1
+    
+    ' First Part of the row
+    tickerArray(1) = tickerElement
+    Cells(2, 9).Value = tickerArray(1)
+    openPrice = Cells(2, 3).Value
+    
+    ' totalVolume = 0
+    ' Part One: put each unique tickerElement in column I give dat from column A.
+    ' Example: Column I: AAB, AAF, AAR, ...
+    ' Part Two: Calculate Yearly change by subtracting opening price of the beginning of the year
+    ' and the closing price of the end of the year and put it into Column J.
+    Dim chunkSize As LongLong
+    chunkSize = 30000
+    
+    Dim startRow As LongLong
+    startRow = 2
+    
+    Dim endRow As LongLong
+    endRow = startRow + chunkSize - 1
+    
+    Dim previousFirstLetter As String
+    previousFirstLetter = Left(Cells(startRow, 1).Value, 1)
+    
+    MsgBox ("LastRow: " & Cells(Rows.Count, 1).End(xlUp).row)
+    Do While startRow < Cells(Rows.Count, 1).End(xlUp).row + 1
+        For row = startRow To endRow
+            Dim currentFirstLetter As String
+            currentFirstLetter = Left(Cells(row, 1).Value, 1)
+            
+            If currentFirstLetter <> previousFirstLetter Then
+                Exit For ' Exit the For loop if the first Letter Changes
+            End If
+            
+            tickerElement = Cells(row, 1).Value
+            volume = volume + Cells(row, 7).Value
+            If (tickerArray(i) <> tickerElement) Then
+                
+                ' Yearly array
+                closePrice = Cells(row - 1, 6).Value
+                yearlyArray(i) = Round(openPrice - closePrice, 2)
+                
+                ' Percent Change
+                percentArray(i) = Round((yearlyArray(i) / openPrice) * 100, 2)
+                
+                ' Volume Array
+                volumeArray(i) = volume
+                volume = 0
+                
+                ' MsgBox ("Close Price: " & closePrice & ", Open Price: " & openPrice & ", YearlyChange: " & yearlyArray(i))
+                ' Opening Price for next iteration
+                openPrice = Cells(row, 3).Value
+                i = i + 1
+                
+                ' Place values into Excel Cells
+                tickerArray(i) = tickerElement
+                Cells(i, 9).Value = tickerArray(i - 1)
+                Cells(i, 10).Value = yearlyArray(i - 1)
+                Cells(i, 11).Value = percentArray(i - 1) & "%"
+                Cells(i, 12).Value = volumeArray(i - 1)
+            End If
+        Next row
+      
+        
+        startRow = endRow + 1
+        endRow = startRow + chunkSize - 1
+        If endRow > Cells(Rows.Count, 1).End(xlUp).row Then
+            endRow = Cells(Rows.Count, 1).End(xlUp).row
+        End If
+        
+        ' Update previousFirstLetter for the next chunk of rows
+        previousFirstLetter = Left(Cells(startRow, 1).Value, 1)
+        
+        If previousFirstLetter = " " Then ' exit the loop
+            Exit Do
+        End If
+    Loop
+    ' Initialize Greatest Variables
+    Incr = -10000
+    IncrTicker = "AAB"
+    Decr = 10000
+    DecrTicker = "AAB"
+    Vol = 0
+    VolTicker = "AAB"
+    
+    ' Iterate and Compare greatest Percent Increase, Greatest Percent Decrease, and Greatest Total Volume.
+    For i = 1 To 2000
+        If (Incr < percentArray(i)) Then
+            Incr = percentArray(i)
+            IncrTicker = tickerArray(i)
+        End If
+        If (Decr > percentArray(i)) Then
+            Decr = percentArray(i)
+            DecrTicker = tickerArray(i)
+        End If
+        If (Vol < volumeArray(i)) Then
+            Vol = volumeArray(i)
+            VolTicker = tickerArray(i)
+        End If
+    Next i
+    
+    ' Output Tickers to Ticker Column
+    Cells(2, 16).Value = IncrTicker
+    Cells(3, 16).Value = DecrTicker
+    Cells(4, 16).Value = VolTicker
+        
+    ' Output Greatest Value to Value Column
+    Cells(2, 17).Value = Incr & "%"
+    Cells(3, 17).Value = Decr & "%"
+    Cells(4, 17).Value = Vol
+        
+End Sub
+
+
+
